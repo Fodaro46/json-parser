@@ -5,3 +5,4 @@ int main(){
 	printf("Lexer pronto a partire.\n");
 	return 0;
 } 
+// fix notturno  
