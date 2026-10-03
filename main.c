@@ -14,15 +14,19 @@ int main(){
 }
 
 TokenType analizzaChar(char assegno){
-	switch(assegno):
-		case "{":
-			return TOKEN_GRAFFA
-		case ":":
-			return TOKEN_DOUBLE_DOT
-		case typedef(string):
-                     	return TOKEN_STRING
+	switch(assegno){
+		case '{':
+			return TOKEN_GRAFFA;
+		case '}':
+			return TOKEN_GRAFFA;
+		case ':':
+			return TOKEN_DOUBLE_DOT;
+		case '"':
+                     	return TOKEN_STRING;
                 default:
-			retun TOKEN_NONE
+			return TOKEN_LETTERA;
 }
-                return TOKEN_NONE
+		return TOKEN_NONE;
+}
+
 }
