@@ -10,10 +10,6 @@ typedef enum{
   TOKEN_LETTERA
 }TokenType;
 
-int main(){
-  return 0;
-}
-
 TokenType analizzaChar(char assegno){
 	switch(assegno){
 		case '{':
@@ -29,5 +25,10 @@ TokenType analizzaChar(char assegno){
 }
 		return TOKEN_NONE;
 }
+
+int main(){
+  return analizzaChar('{');
+}
+
 
 
