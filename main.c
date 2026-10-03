@@ -7,6 +7,7 @@ typedef enum{
   TOKEN_GRAFFA,
   TOKEN_DOUBLE_DOT,
   TOKEN_NONE,
+  TOKEN_LETTERA
 }TokenType;
 
 int main(){
@@ -29,4 +30,4 @@ TokenType analizzaChar(char assegno){
 		return TOKEN_NONE;
 }
 
-}
+
