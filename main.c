@@ -37,6 +37,8 @@ TokenType analizzaChar(char assegno){
 		return TOKEN_NONE;
 }
 int main(){
+  //da applicare hardcoded costante per testing ma useless 
+  // applicare la malloc per leggere direttamente i file
   return analizzaChar('{');
 }
 
