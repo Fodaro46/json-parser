@@ -36,9 +36,22 @@ TokenType analizzaChar(char assegno){
 }
 		return TOKEN_NONE;
 }
-int main(){
-  //da applicare hardcoded costante per testing ma useless 
-  // applicare la malloc per leggere direttamente i file
+int main() {
+    // Stringa JSON di test hardcoded
+    const char *test_json = "{\"chiave\": \"valore\"}";
+    
+    printf("Avvio test hardcoded sulla stringa:\n%s\n\n", test_json);
+    
+    for (int i = 0; test_json[i] != '\0'; i++) {
+        char c = test_json[i];
+        TokenType token = analizzaChar(c);
+        
+        // Stampa a video del carattere e del token associato
+        printf("Carattere: '%c' (ASCII: %3d) --> TokenType: %d\n", c, c, token);
+    }
+    
+    return 0;
+}  // applicare la malloc per leggere direttamente i file
   return analizzaChar('{');
 }
 
