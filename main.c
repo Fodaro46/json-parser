@@ -1,4 +1,5 @@
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
  //IL LEXER DEVE LEGGERE UN CARATTERE E CLASSIFICARLO
@@ -10,7 +11,7 @@ typedef enum{
   TOKEN_QUADRA_APERTA,
   TOKEN_QUADRA_CHIUSA,
   TOKEN_NONE,
-  TOKEN_LETTERA
+  TOKEN_LETTERA,
   TOKEN_VIRGOLA
 }TokenType;
 
@@ -51,9 +52,9 @@ int main() {
     }
     
     return 0;
-}  // applicare la malloc per leggere direttamente i file
-  return analizzaChar('{');
 }
+// TODO: applicare la malloc per leggere direttamente i file
+
 
 
 
