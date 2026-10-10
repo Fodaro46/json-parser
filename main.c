@@ -37,6 +37,19 @@ TokenType analizzaChar(char assegno){
 }
 		return TOKEN_NONE;
 }
+const char *nomeToken(TokenType t){
+	switch(t){
+		case TOKEN_STRING:        return "STRING";
+		case TOKEN_GRAFFA_APERTA: return "GRAFFA_APERTA";
+		case TOKEN_GRAFFA_CHIUSA: return "GRAFFA_CHIUSA";
+		case TOKEN_DOUBLE_DOT:    return "DOUBLE_DOT";
+		case TOKEN_QUADRA_APERTA: return "QUADRA_APERTA";
+		case TOKEN_QUADRA_CHIUSA: return "QUADRA_CHIUSA";
+		case TOKEN_VIRGOLA:       return "VIRGOLA";
+		case TOKEN_LETTERA:       return "LETTERA";
+		default:                  return "NONE";
+	}
+}
 int main() {
     // Stringa JSON di test hardcoded
     const char *test_json = "{\"chiave\": \"valore\"}";
@@ -48,7 +61,7 @@ int main() {
         TokenType token = analizzaChar(c);
         
         // Stampa a video del carattere e del token associato
-        printf("Carattere: '%c' (ASCII: %3d) --> TokenType: %d\n", c, c, token);
+        printf("Carattere: '%c' (ASCII: %3d) --> %s\n", c, c, nomeToken(token));
     }
     
     return 0;
