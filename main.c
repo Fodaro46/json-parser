@@ -30,12 +30,10 @@ TokenType analizzaChar(char assegno){
 		case ',':
 			return TOKEN_VIRGOLA;
 		case '"':
-                     	return TOKEN_STRING;
-
-                default:
+			return TOKEN_STRING;
+		default:
 			return TOKEN_LETTERA;
-}
-		return TOKEN_NONE;
+	}
 }
 const char *nomeToken(TokenType t){
 	switch(t){
