@@ -13,6 +13,8 @@ typedef enum{
   TOKEN_VIRGOLA
 }TokenType;
 
+// Classifica un singolo carattere: restituisce il token di struttura
+// corrispondente, TOKEN_STRING per le virgolette, TOKEN_LETTERA per il resto.
 TokenType analizzaChar(char assegno){
 	switch(assegno){
 		case '{':
