@@ -46,9 +46,11 @@ const char *nomeToken(TokenType t){
 		default:                  return "NONE";
 	}
 }
+// Stringa JSON di test hardcoded
+#define TEST_JSON "{\"chiave\": \"valore\"}"
+
 int main(void) {
-    // Stringa JSON di test hardcoded
-    const char *test_json = "{\"chiave\": \"valore\"}";
+    const char *test_json = TEST_JSON;
     
     printf("Avvio test hardcoded sulla stringa:\n%s\n\n", test_json);
     
