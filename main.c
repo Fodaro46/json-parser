@@ -1,7 +1,5 @@
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
  //IL LEXER DEVE LEGGERE UN CARATTERE E CLASSIFICARLO
 typedef enum{
   TOKEN_STRING,
