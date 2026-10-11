@@ -8,7 +8,6 @@ typedef enum{
   TOKEN_DOUBLE_DOT,
   TOKEN_QUADRA_APERTA,
   TOKEN_QUADRA_CHIUSA,
-  TOKEN_NONE,
   TOKEN_LETTERA,
   TOKEN_VIRGOLA
 }TokenType;
@@ -45,7 +44,7 @@ const char *nomeToken(TokenType t){
 		case TOKEN_QUADRA_CHIUSA: return "QUADRA_CHIUSA";
 		case TOKEN_VIRGOLA:       return "VIRGOLA";
 		case TOKEN_LETTERA:       return "LETTERA";
-		default:                  return "NONE";
+		default:                  return "SCONOSCIUTO";
 	}
 }
 // Stringa JSON di test hardcoded
