@@ -49,3 +49,8 @@ gcc -Wall -o parser main.c
 - `main.c` sorgente
 - `test.json` file di prova
 - `SFIDE.md` esercizi per andare avanti
+
+## Stato attuale
+
+Per ora il lexer classifica un carattere alla volta: graffe, quadre, due punti, virgola, virgolette e spazi bianchi.
+Tutto il resto finisce in `LETTERA`. Mancano numeri, `true`/`false`/`null`, stringhe intere e il parser vero e proprio.
