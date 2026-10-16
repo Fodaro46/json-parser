@@ -40,14 +40,17 @@ Se i token non rispettano la grammatica (una virgola di troppo, una graffa non c
 ## Compilare
 
 ```
-gcc -Wall -o parser main.c
+make
 ./parser
 ```
+
+Oppure direttamente `make run`.
 
 ## Struttura
 
 - `main.c` sorgente
 - `test.json` file di prova
+- `tests/` altri json di prova
 - `SFIDE.md` esercizi per andare avanti
 
 ## Stato attuale
