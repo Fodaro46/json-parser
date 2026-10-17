@@ -10,6 +10,7 @@ typedef enum{
   TOKEN_QUADRA_CHIUSA,
   TOKEN_LETTERA,
   TOKEN_SPAZIO,
+  TOKEN_NUMERO,
   TOKEN_VIRGOLA
 }TokenType;
 
@@ -36,6 +37,17 @@ TokenType analizzaChar(char assegno){
 		case '\n':
 		case '\r':
 			return TOKEN_SPAZIO;
+		case '0':
+		case '1':
+		case '2':
+		case '3':
+		case '4':
+		case '5':
+		case '6':
+		case '7':
+		case '8':
+		case '9':
+			return TOKEN_NUMERO;
 		default:
 			return TOKEN_LETTERA;
 	}
@@ -51,6 +63,7 @@ const char *nomeToken(TokenType t){
 		case TOKEN_VIRGOLA:       return "VIRGOLA";
 		case TOKEN_LETTERA:       return "LETTERA";
 		case TOKEN_SPAZIO:        return "SPAZIO";
+		case TOKEN_NUMERO:        return "NUMERO";
 		default:                  return "SCONOSCIUTO";
 	}
 }
