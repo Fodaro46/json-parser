@@ -57,3 +57,12 @@ Oppure direttamente `make run`.
 
 Per ora il lexer classifica un carattere alla volta: graffe, quadre, due punti, virgola, virgolette, spazi bianchi e cifre.
 Tutto il resto finisce in `LETTERA`. Mancano i numeri interi e decimali veri e propri (per ora ogni cifra è un token a sé), `true`/`false`/`null`, stringhe intere e il parser vero e proprio.
+
+## Prossimi passi
+
+- saltare gli spazi bianchi (serve sapere se si è dentro una stringa)
+- leggere un'intera stringa come un solo token
+- riconoscere `true`, `false` e `null`
+- caricare il json da file invece che dalla stringa hardcoded
+
+Il dettaglio è in `SFIDE.md`.
