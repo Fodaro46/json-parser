@@ -16,6 +16,7 @@ typedef enum{
 
 // Classifica un singolo carattere: restituisce il token di struttura
 // corrispondente, TOKEN_STRING per le virgolette, TOKEN_LETTERA per il resto.
+// Cifre, '-' e '.' contano come TOKEN_NUMERO.
 TokenType analizzaChar(char assegno){
 	switch(assegno){
 		case '{':
@@ -47,6 +48,8 @@ TokenType analizzaChar(char assegno){
 		case '7':
 		case '8':
 		case '9':
+		case '-':
+		case '.':
 			return TOKEN_NUMERO;
 		default:
 			return TOKEN_LETTERA;
