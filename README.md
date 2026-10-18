@@ -56,4 +56,4 @@ Oppure direttamente `make run`.
 ## Stato attuale
 
 Per ora il lexer classifica un carattere alla volta: graffe, quadre, due punti, virgola, virgolette, spazi bianchi e cifre.
-Tutto il resto finisce in `LETTERA`. Mancano i numeri interi e decimali veri e propri (per ora ogni cifra è un token a sé), `true`/`false`/`null`, stringhe intere e il parser vero e proprio.
+Tutto il resto finisce in `LETTERA`. Mancano i numeri interi e decimali veri e propri (per ora ogni cifra Ã¨ un token a sÃ©), `true`/`false`/`null`, stringhe intere e il parser vero e proprio.
