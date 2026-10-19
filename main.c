@@ -73,6 +73,11 @@ const char *nomeToken(TokenType t){
 // Stringa JSON di test hardcoded
 #define TEST_JSON "{\"chiave\": \"valore\"}"
 
+// Stampa a video il carattere e il token associato
+void stampaToken(char c, TokenType token){
+    printf("Carattere: '%c' (ASCII: %3d) --> %s\n", c, c, nomeToken(token));
+}
+
 int main(void) {
     const char *test_json = TEST_JSON;
     
@@ -80,10 +85,7 @@ int main(void) {
     
     for (int i = 0; test_json[i] != '\0'; i++) {
         char c = test_json[i];
-        TokenType token = analizzaChar(c);
-        
-        // Stampa a video del carattere e del token associato
-        printf("Carattere: '%c' (ASCII: %3d) --> %s\n", c, c, nomeToken(token));
+        stampaToken(c, analizzaChar(c));
     }
     
     return 0;
