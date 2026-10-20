@@ -11,7 +11,8 @@ typedef enum{
   TOKEN_LETTERA,
   TOKEN_SPAZIO,
   TOKEN_NUMERO,
-  TOKEN_VIRGOLA
+  TOKEN_VIRGOLA,
+  TOKEN_TOTALE // non è un token, serve solo a contarli
 }TokenType;
 
 // Classifica un singolo carattere: restituisce il token di struttura
@@ -83,11 +84,22 @@ int main(void) {
     
     printf("Avvio test hardcoded sulla stringa:\n%s\n\n", test_json);
     
+    int conteggio[TOKEN_TOTALE] = {0};
+
     for (int i = 0; test_json[i] != '\0'; i++) {
         char c = test_json[i];
-        stampaToken(c, analizzaChar(c));
+        TokenType token = analizzaChar(c);
+        conteggio[token]++;
+        stampaToken(c, token);
     }
-    
+
+    printf("\nToken trovati:\n");
+    for (int t = 0; t < TOKEN_TOTALE; t++) {
+        if (conteggio[t] > 0) {
+            printf("  %-14s %d\n", nomeToken((TokenType)t), conteggio[t]);
+        }
+    }
+
     return 0;
 }
 // TODO: applicare la malloc per leggere direttamente i file
