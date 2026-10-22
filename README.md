@@ -46,6 +46,12 @@ make
 
 Oppure direttamente `make run`.
 
+Senza argomenti usa una stringa di prova. Per leggere un file:
+
+```
+./parser tests/annidato.json
+```
+
 ## Struttura
 
 - `main.c` sorgente
@@ -63,6 +69,5 @@ Tutto il resto finisce in `LETTERA`. Mancano i numeri interi e decimali veri e p
 - saltare gli spazi bianchi (serve sapere se si è dentro una stringa)
 - leggere un'intera stringa come un solo token
 - riconoscere `true`, `false` e `null`
-- caricare il json da file invece che dalla stringa hardcoded
 
 Il dettaglio è in `SFIDE.md`.

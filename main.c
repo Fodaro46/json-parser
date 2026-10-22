@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
  //IL LEXER DEVE LEGGERE UN CARATTERE E CLASSIFICARLO
 typedef enum{
   TOKEN_STRING,
@@ -78,10 +79,50 @@ void stampaToken(char c, TokenType token){
     printf("Carattere: '%c' (ASCII: %3d) --> %s\n", c, c, nomeToken(token));
 }
 
-int main(void) {
-    const char *test_json = TEST_JSON;
+// Legge tutto il file in un buffer allocato con malloc, terminato da '\0'.
+// Restituisce NULL se il file non si apre o la memoria non basta.
+// Il chiamante deve fare free() sul risultato.
+char *leggiFile(const char *percorso){
+    FILE *f = fopen(percorso, "rb");
+    if (f == NULL) {
+        return NULL;
+    }
 
-    printf("Avvio test hardcoded sulla stringa:\n%s\n\n", test_json);
+    fseek(f, 0, SEEK_END);
+    long dimensione = ftell(f);
+    rewind(f);
+    if (dimensione < 0) {
+        fclose(f);
+        return NULL;
+    }
+
+    char *buffer = malloc(dimensione + 1);
+    if (buffer == NULL) {
+        fclose(f);
+        return NULL;
+    }
+
+    size_t letti = fread(buffer, 1, dimensione, f);
+    buffer[letti] = '\0';
+    fclose(f);
+    return buffer;
+}
+
+int main(int argc, char *argv[]) {
+    const char *test_json = TEST_JSON;
+    char *da_file = NULL;
+
+    if (argc > 1) {
+        da_file = leggiFile(argv[1]);
+        if (da_file == NULL) {
+            fprintf(stderr, "Impossibile leggere il file '%s'\n", argv[1]);
+            return 1;
+        }
+        test_json = da_file;
+        printf("Avvio test sul file %s:\n%s\n\n", argv[1], test_json);
+    } else {
+        printf("Avvio test hardcoded sulla stringa:\n%s\n\n", test_json);
+    }
 
     int conteggio[TOKEN_TOTALE] = {0};
 
@@ -99,6 +140,6 @@ int main(void) {
         }
     }
 
+    free(da_file);
     return 0;
 }
-// TODO: applicare la malloc per leggere direttamente i file
