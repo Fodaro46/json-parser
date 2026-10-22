@@ -1,4 +1,3 @@
-
 #include <stdio.h>
  //IL LEXER DEVE LEGGERE UN CARATTERE E CLASSIFICARLO
 typedef enum{
@@ -81,9 +80,9 @@ void stampaToken(char c, TokenType token){
 
 int main(void) {
     const char *test_json = TEST_JSON;
-    
+
     printf("Avvio test hardcoded sulla stringa:\n%s\n\n", test_json);
-    
+
     int conteggio[TOKEN_TOTALE] = {0};
 
     for (int i = 0; test_json[i] != '\0'; i++) {
@@ -103,7 +102,3 @@ int main(void) {
     return 0;
 }
 // TODO: applicare la malloc per leggere direttamente i file
-
-
-
-
