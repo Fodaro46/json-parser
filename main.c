@@ -103,6 +103,10 @@ char *leggiFile(const char *percorso){
     }
 
     size_t letti = fread(buffer, 1, dimensione, f);
+    // l'a capo finale che molti editor aggiungono non fa parte del json
+    while (letti > 0 && (buffer[letti - 1] == '\n' || buffer[letti - 1] == '\r')) {
+        letti--;
+    }
     buffer[letti] = '\0';
     fclose(f);
     return buffer;
