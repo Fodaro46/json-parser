@@ -12,6 +12,7 @@ typedef enum{
   TOKEN_SPAZIO,
   TOKEN_NUMERO,
   TOKEN_VIRGOLA,
+  TOKEN_FINE, // fine del testo, per ora non lo restituisce nessuno
   TOKEN_TOTALE // non è un token, serve solo a contarli
 }TokenType;
 
@@ -65,6 +66,7 @@ const char *nomeToken(TokenType t){
 		case TOKEN_QUADRA_APERTA: return "QUADRA_APERTA";
 		case TOKEN_QUADRA_CHIUSA: return "QUADRA_CHIUSA";
 		case TOKEN_VIRGOLA:       return "VIRGOLA";
+		case TOKEN_FINE:          return "FINE";
 		case TOKEN_LETTERA:       return "LETTERA";
 		case TOKEN_SPAZIO:        return "SPAZIO";
 		case TOKEN_NUMERO:        return "NUMERO";
