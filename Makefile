@@ -6,3 +6,6 @@ build:
 
 run: build
 	./parser
+
+clean:
+	rm -f parser parser.exe
