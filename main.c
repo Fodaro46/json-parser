@@ -79,11 +79,11 @@ const char *nomeToken(TokenType t){
 #define TEST_JSON "{\"chiave\": \"valore\"}"
 
 // Stampa a video il carattere e il token associato
-void stampaToken(char c, TokenType token){
+void stampaToken(char c, TokenType token, int riga, int colonna){
     if (c == '\0') {
-        printf("Carattere: '\\0' (ASCII: %3d) --> %s\n", c, nomeToken(token));
+        printf("[riga %d, col %d] Carattere: '\\0' (ASCII: %3d) --> %s\n", riga, colonna, c, nomeToken(token));
     } else {
-        printf("Carattere: '%c' (ASCII: %3d) --> %s\n", c, c, nomeToken(token));
+        printf("[riga %d, col %d] Carattere: '%c' (ASCII: %3d) --> %s\n", riga, colonna, c, c, nomeToken(token));
     }
 }
 
@@ -137,17 +137,26 @@ int main(int argc, char *argv[]) {
     }
 
     int conteggio[TOKEN_TOTALE] = {0};
+    int riga = 1;
+    int colonna = 1;
 
     for (int i = 0; test_json[i] != '\0'; i++) {
         char c = test_json[i];
         TokenType token = analizzaChar(c);
         conteggio[token]++;
-        stampaToken(c, token);
+        stampaToken(c, token, riga, colonna);
+
+        if (c == '\n') {
+            riga++;
+            colonna = 1;
+        } else {
+            colonna++;
+        }
     }
 
     TokenType fine = analizzaChar('\0');
     conteggio[fine]++;
-    stampaToken('\0', fine);
+    stampaToken('\0', fine, riga, colonna);
 
     printf("\nToken trovati:\n");
     for (int t = 0; t < TOKEN_TOTALE; t++) {
