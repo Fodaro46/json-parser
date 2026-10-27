@@ -12,7 +12,7 @@ typedef enum{
   TOKEN_SPAZIO,
   TOKEN_NUMERO,
   TOKEN_VIRGOLA,
-  TOKEN_FINE, // fine del testo, per ora non lo restituisce nessuno
+  TOKEN_FINE, // fine del testo
   TOKEN_TOTALE // non è un token, serve solo a contarli
 }TokenType;
 
@@ -53,6 +53,8 @@ TokenType analizzaChar(char assegno){
 		case '-':
 		case '.':
 			return TOKEN_NUMERO;
+		case '\0':
+			return TOKEN_FINE;
 		default:
 			return TOKEN_LETTERA;
 	}
@@ -78,7 +80,11 @@ const char *nomeToken(TokenType t){
 
 // Stampa a video il carattere e il token associato
 void stampaToken(char c, TokenType token){
-    printf("Carattere: '%c' (ASCII: %3d) --> %s\n", c, c, nomeToken(token));
+    if (c == '\0') {
+        printf("Carattere: '\\0' (ASCII: %3d) --> %s\n", c, nomeToken(token));
+    } else {
+        printf("Carattere: '%c' (ASCII: %3d) --> %s\n", c, c, nomeToken(token));
+    }
 }
 
 // Legge tutto il file in un buffer allocato con malloc, terminato da '\0'.
@@ -138,6 +144,10 @@ int main(int argc, char *argv[]) {
         conteggio[token]++;
         stampaToken(c, token);
     }
+
+    TokenType fine = analizzaChar('\0');
+    conteggio[fine]++;
+    stampaToken('\0', fine);
 
     printf("\nToken trovati:\n");
     for (int t = 0; t < TOKEN_TOTALE; t++) {
