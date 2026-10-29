@@ -130,6 +130,11 @@ int main(int argc, char *argv[]) {
             fprintf(stderr, "Impossibile leggere il file '%s'\n", argv[1]);
             return 1;
         }
+        if (da_file[0] == '\0') {
+            fprintf(stderr, "Il file '%s' e' vuoto\n", argv[1]);
+            free(da_file);
+            return 1;
+        }
         test_json = da_file;
         printf("Avvio test sul file %s:\n%s\n\n", argv[1], test_json);
     } else {
