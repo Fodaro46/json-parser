@@ -148,8 +148,11 @@ int main(int argc, char *argv[]) {
     for (int i = 0; test_json[i] != '\0'; i++) {
         char c = test_json[i];
         TokenType token = analizzaChar(c);
-        conteggio[token]++;
-        stampaToken(c, token, riga, colonna);
+        // gli spazi non producono token: si salta la stampa ma la posizione avanza
+        if (token != TOKEN_SPAZIO) {
+            conteggio[token]++;
+            stampaToken(c, token, riga, colonna);
+        }
 
         if (c == '\n') {
             riga++;
