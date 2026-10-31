@@ -87,6 +87,29 @@ void stampaToken(char c, TokenType token, int riga, int colonna){
     }
 }
 
+// Stampa a video un numero intero (piu caratteri) come singolo token
+void stampaNumero(const char *testo, int lunghezza, int riga, int colonna){
+    printf("[riga %d, col %d] Numero: '%.*s' --> %s\n", riga, colonna, lunghezza, testo, nomeToken(TOKEN_NUMERO));
+}
+
+// Un intero valido e' un '-' facoltativo seguito da almeno una cifra.
+// Rifiuta "-", "--1" e "1-".
+int numeroValido(const char *testo, int lunghezza){
+    int i = 0;
+    if (testo[0] == '-') {
+        i = 1;
+    }
+    if (i >= lunghezza) {
+        return 0;
+    }
+    for (; i < lunghezza; i++) {
+        if (testo[i] < '0' || testo[i] > '9') {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 // Legge tutto il file in un buffer allocato con malloc, terminato da '\0'.
 // Restituisce NULL se il file non si apre o la memoria non basta.
 // Il chiamante deve fare free() sul risultato.
@@ -148,6 +171,25 @@ int main(int argc, char *argv[]) {
     for (int i = 0; test_json[i] != '\0'; i++) {
         char c = test_json[i];
         TokenType token = analizzaChar(c);
+
+        // le cifre consecutive formano un solo token numerico
+        if (token == TOKEN_NUMERO) {
+            int lunghezza = 1;
+            while (analizzaChar(test_json[i + lunghezza]) == TOKEN_NUMERO) {
+                lunghezza++;
+            }
+            if (!numeroValido(test_json + i, lunghezza)) {
+                fprintf(stderr, "[riga %d, col %d] Numero non valido: '%.*s'\n", riga, colonna, lunghezza, test_json + i);
+                free(da_file);
+                return 1;
+            }
+            conteggio[token]++;
+            stampaNumero(test_json + i, lunghezza, riga, colonna);
+            colonna += lunghezza;
+            i += lunghezza - 1;
+            continue;
+        }
+
         // gli spazi non producono token: si salta la stampa ma la posizione avanza
         if (token != TOKEN_SPAZIO) {
             conteggio[token]++;
