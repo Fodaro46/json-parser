@@ -92,6 +92,11 @@ void stampaNumero(const char *testo, int lunghezza, int riga, int colonna){
     printf("[riga %d, col %d] Numero: '%.*s' --> %s\n", riga, colonna, lunghezza, testo, nomeToken(TOKEN_NUMERO));
 }
 
+// Stampa a video una stringa intera (virgolette comprese) come singolo token
+void stampaStringa(const char *testo, int lunghezza, int riga, int colonna){
+    printf("[riga %d, col %d] Stringa: %.*s --> %s\n", riga, colonna, lunghezza, testo, nomeToken(TOKEN_STRING));
+}
+
 // Un intero valido e' un '-' facoltativo seguito da almeno una cifra.
 // Rifiuta "-", "--1" e "1-".
 int numeroValido(const char *testo, int lunghezza){
@@ -171,6 +176,36 @@ int main(int argc, char *argv[]) {
     for (int i = 0; test_json[i] != '\0'; i++) {
         char c = test_json[i];
         TokenType token = analizzaChar(c);
+
+        // dalla virgoletta di apertura a quella di chiusura e' un solo token;
+        // la virgoletta preceduta da backslash non chiude la stringa
+        if (token == TOKEN_STRING) {
+            int lunghezza = 1;
+            while (test_json[i + lunghezza] != '\0' && test_json[i + lunghezza] != '"') {
+                if (test_json[i + lunghezza] == '\\' && test_json[i + lunghezza + 1] != '\0') {
+                    lunghezza++;
+                }
+                lunghezza++;
+            }
+            if (test_json[i + lunghezza] == '\0') {
+                fprintf(stderr, "[riga %d, col %d] Stringa non terminata\n", riga, colonna);
+                free(da_file);
+                return 1;
+            }
+            lunghezza++;
+            conteggio[token]++;
+            stampaStringa(test_json + i, lunghezza, riga, colonna);
+            for (int k = 0; k < lunghezza; k++) {
+                if (test_json[i + k] == '\n') {
+                    riga++;
+                    colonna = 1;
+                } else {
+                    colonna++;
+                }
+            }
+            i += lunghezza - 1;
+            continue;
+        }
 
         // le cifre consecutive formano un solo token numerico
         if (token == TOKEN_NUMERO) {
