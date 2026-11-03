@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
  //IL LEXER DEVE LEGGERE UN CARATTERE E CLASSIFICARLO
 typedef enum{
   TOKEN_STRING,
@@ -12,6 +13,7 @@ typedef enum{
   TOKEN_SPAZIO,
   TOKEN_NUMERO,
   TOKEN_VIRGOLA,
+  TOKEN_LETTERALE, // true, false o null
   TOKEN_FINE, // fine del testo
   TOKEN_TOTALE // non è un token, serve solo a contarli
 }TokenType;
@@ -70,6 +72,7 @@ const char *nomeToken(TokenType t){
 		case TOKEN_VIRGOLA:       return "VIRGOLA";
 		case TOKEN_FINE:          return "FINE";
 		case TOKEN_LETTERA:       return "LETTERA";
+		case TOKEN_LETTERALE:     return "LETTERALE";
 		case TOKEN_SPAZIO:        return "SPAZIO";
 		case TOKEN_NUMERO:        return "NUMERO";
 		default:                  return "SCONOSCIUTO";
@@ -95,6 +98,23 @@ void stampaNumero(const char *testo, int lunghezza, int riga, int colonna){
 // Stampa a video una stringa intera (virgolette comprese) come singolo token
 void stampaStringa(const char *testo, int lunghezza, int riga, int colonna){
     printf("[riga %d, col %d] Stringa: %.*s --> %s\n", riga, colonna, lunghezza, testo, nomeToken(TOKEN_STRING));
+}
+
+// Stampa a video un letterale (true, false, null) come singolo token
+void stampaLetterale(const char *testo, int lunghezza, int riga, int colonna){
+    printf("[riga %d, col %d] Letterale: %.*s --> %s\n", riga, colonna, lunghezza, testo, nomeToken(TOKEN_LETTERALE));
+}
+
+// Vero solo se il testo e' esattamente "true", "false" o "null".
+// Rifiuta "tru" e "nulll".
+int letteraleValido(const char *testo, int lunghezza){
+    const char *ammessi[] = {"true", "false", "null"};
+    for (int k = 0; k < 3; k++) {
+        if ((int)strlen(ammessi[k]) == lunghezza && strncmp(testo, ammessi[k], lunghezza) == 0) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 // Un intero valido e' un '-' facoltativo seguito da almeno una cifra.
@@ -203,6 +223,24 @@ int main(int argc, char *argv[]) {
                     colonna++;
                 }
             }
+            i += lunghezza - 1;
+            continue;
+        }
+
+        // le lettere consecutive devono formare true, false o null
+        if (token == TOKEN_LETTERA) {
+            int lunghezza = 1;
+            while (analizzaChar(test_json[i + lunghezza]) == TOKEN_LETTERA) {
+                lunghezza++;
+            }
+            if (!letteraleValido(test_json + i, lunghezza)) {
+                fprintf(stderr, "[riga %d, col %d] Letterale non valido: '%.*s'\n", riga, colonna, lunghezza, test_json + i);
+                free(da_file);
+                return 1;
+            }
+            conteggio[TOKEN_LETTERALE]++;
+            stampaLetterale(test_json + i, lunghezza, riga, colonna);
+            colonna += lunghezza;
             i += lunghezza - 1;
             continue;
         }

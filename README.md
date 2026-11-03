@@ -62,13 +62,12 @@ Senza argomenti usa una stringa di prova. Per leggere un file:
 ## Stato attuale
 
 Il lexer legge il testo e stampa i token con riga e colonna.
-Riconosce graffe, quadre, due punti, virgola, stringhe intere (con `\"` dentro) e numeri interi come singolo token. Gli spazi bianchi vengono saltati.
-Gli errori (file vuoto, stringa non terminata, numero non valido) escono con codice 1 e un messaggio.
-Tutto il resto finisce ancora in `LETTERA`. Mancano i decimali e gli esponenti, `true`/`false`/`null` e il parser vero e proprio.
+Riconosce graffe, quadre, due punti, virgola, stringhe intere (con `\"` dentro) e numeri interi e `true`/`false`/`null` come singolo token. Gli spazi bianchi vengono saltati.
+Gli errori (file vuoto, stringa non terminata, numero o letterale non valido) escono con codice 1 e un messaggio.
+Mancano i decimali e gli esponenti e il parser vero e proprio.
 
 ## Prossimi passi
 
-- riconoscere `true`, `false` e `null`
 - decimali ed esponenti nei numeri
 - gestire gli escape nelle stringhe (`\n`, `\uXXXX`)
 
