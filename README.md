@@ -61,13 +61,15 @@ Senza argomenti usa una stringa di prova. Per leggere un file:
 
 ## Stato attuale
 
-Per ora il lexer classifica un carattere alla volta: graffe, quadre, due punti, virgola, virgolette, spazi bianchi e cifre.
-Tutto il resto finisce in `LETTERA`. Mancano i numeri interi e decimali veri e propri (per ora ogni cifra è un token a sé), `true`/`false`/`null`, stringhe intere e il parser vero e proprio.
+Il lexer legge il testo e stampa i token con riga e colonna.
+Riconosce graffe, quadre, due punti, virgola, stringhe intere (con `\"` dentro) e numeri interi come singolo token. Gli spazi bianchi vengono saltati.
+Gli errori (file vuoto, stringa non terminata, numero non valido) escono con codice 1 e un messaggio.
+Tutto il resto finisce ancora in `LETTERA`. Mancano i decimali e gli esponenti, `true`/`false`/`null` e il parser vero e proprio.
 
 ## Prossimi passi
 
-- saltare gli spazi bianchi (serve sapere se si è dentro una stringa)
-- leggere un'intera stringa come un solo token
 - riconoscere `true`, `false` e `null`
+- decimali ed esponenti nei numeri
+- gestire gli escape nelle stringhe (`\n`, `\uXXXX`)
 
 Il dettaglio è in `SFIDE.md`.
