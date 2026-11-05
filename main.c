@@ -117,22 +117,62 @@ int letteraleValido(const char *testo, int lunghezza){
     return 0;
 }
 
-// Un intero valido e' un '-' facoltativo seguito da almeno una cifra.
-// Rifiuta "-", "--1" e "1-".
+// Vero per i caratteri che possono comparire dentro un numero JSON.
+int carattereNumero(char c){
+    return (c >= '0' && c <= '9') || c == '-' || c == '+' || c == '.' || c == 'e' || c == 'E';
+}
+
+// Controlla la grammatica JSON dei numeri:
+// '-' facoltativo, parte intera (0 oppure cifre senza zero iniziale),
+// parte decimale facoltativa (. e almeno una cifra),
+// esponente facoltativo (e/E, segno facoltativo, almeno una cifra).
+// Rifiuta "-", "--1", "1-", "01", ".5", "1." e "1e".
 int numeroValido(const char *testo, int lunghezza){
     int i = 0;
-    if (testo[0] == '-') {
-        i = 1;
+    if (testo[i] == '-') {
+        i++;
     }
     if (i >= lunghezza) {
         return 0;
     }
-    for (; i < lunghezza; i++) {
-        if (testo[i] < '0' || testo[i] > '9') {
+    if (testo[i] == '0') {
+        i++;
+    } else if (testo[i] >= '1' && testo[i] <= '9') {
+        while (i < lunghezza && testo[i] >= '0' && testo[i] <= '9') {
+            i++;
+        }
+    } else {
+        return 0;
+    }
+
+    if (i < lunghezza && testo[i] == '.') {
+        i++;
+        int cifre = 0;
+        while (i < lunghezza && testo[i] >= '0' && testo[i] <= '9') {
+            i++;
+            cifre++;
+        }
+        if (cifre == 0) {
             return 0;
         }
     }
-    return 1;
+
+    if (i < lunghezza && (testo[i] == 'e' || testo[i] == 'E')) {
+        i++;
+        if (i < lunghezza && (testo[i] == '+' || testo[i] == '-')) {
+            i++;
+        }
+        int cifre = 0;
+        while (i < lunghezza && testo[i] >= '0' && testo[i] <= '9') {
+            i++;
+            cifre++;
+        }
+        if (cifre == 0) {
+            return 0;
+        }
+    }
+
+    return i == lunghezza;
 }
 
 // Legge tutto il file in un buffer allocato con malloc, terminato da '\0'.
@@ -248,7 +288,7 @@ int main(int argc, char *argv[]) {
         // le cifre consecutive formano un solo token numerico
         if (token == TOKEN_NUMERO) {
             int lunghezza = 1;
-            while (analizzaChar(test_json[i + lunghezza]) == TOKEN_NUMERO) {
+            while (carattereNumero(test_json[i + lunghezza])) {
                 lunghezza++;
             }
             if (!numeroValido(test_json + i, lunghezza)) {

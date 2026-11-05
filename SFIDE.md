@@ -8,7 +8,7 @@ Spuntare quando fatte.
 - [x] **Spazi bianchi.** Il lexer deve saltare spazi, tab e a capo senza produrre token. Input: `{ "a" :   1 }` deve dare gli stessi token di `{"a":1}`.
 - [x] **Stringa intera.** Invece di classificare un carattere alla volta, restituire l'intera stringa tra virgolette come un solo token. Cosa succede con `"ciao\"mondo"`?
 - [x] **Numeri.** Riconoscere interi e negativi: `0`, `42`, `-7`. Scrivere i casi che devono fallire (`-`, `--1`, `1-`).
-- [ ] **Decimali ed esponenti.** Estendere i numeri a `3.14`, `-0.5`, `1e10`, `2.5E-3`. Attenzione a `01` e `.5`, che in JSON non sono validi.
+- [x] **Decimali ed esponenti.** Estendere i numeri a `3.14`, `-0.5`, `1e10`, `2.5E-3`. Attenzione a `01` e `.5`, che in JSON non sono validi.
 - [x] **Letterali.** Riconoscere `true`, `false`, `null`. `tru` e `nulll` devono essere errori.
 - [x] **Posizione.** Ogni token deve portarsi dietro riga e colonna. Servirà per i messaggi di errore.
 - [ ] **Bilanciamento.** Dato un testo, dire se `{}` e `[]` sono bilanciati e annidati correttamente, ignorando quelli dentro le stringhe. `[{]}` non è valido.
