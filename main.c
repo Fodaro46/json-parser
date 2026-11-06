@@ -81,6 +81,8 @@ const char *nomeToken(TokenType t){
 // Stringa JSON di test hardcoded
 #define TEST_JSON "{\"chiave\": \"valore\"}"
 
+#define PROFONDITA_MAX 1024
+
 // Stampa a video il carattere e il token associato
 void stampaToken(char c, TokenType token, int riga, int colonna){
     if (c == '\0') {
@@ -233,6 +235,12 @@ int main(int argc, char *argv[]) {
     int riga = 1;
     int colonna = 1;
 
+    // pila delle parentesi aperte, con la posizione per i messaggi di errore
+    char aperte[PROFONDITA_MAX];
+    int righe_aperte[PROFONDITA_MAX];
+    int colonne_aperte[PROFONDITA_MAX];
+    int profondita = 0;
+
     for (int i = 0; test_json[i] != '\0'; i++) {
         char c = test_json[i];
         TokenType token = analizzaChar(c);
@@ -303,6 +311,34 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
+        // ogni parentesi chiusa deve corrispondere all'ultima aperta
+        if (token == TOKEN_GRAFFA_APERTA || token == TOKEN_QUADRA_APERTA) {
+            if (profondita == PROFONDITA_MAX) {
+                fprintf(stderr, "[riga %d, col %d] Troppo annidato (massimo %d livelli)\n", riga, colonna, PROFONDITA_MAX);
+                free(da_file);
+                return 1;
+            }
+            aperte[profondita] = c;
+            righe_aperte[profondita] = riga;
+            colonne_aperte[profondita] = colonna;
+            profondita++;
+        } else if (token == TOKEN_GRAFFA_CHIUSA || token == TOKEN_QUADRA_CHIUSA) {
+            char atteso = (token == TOKEN_GRAFFA_CHIUSA) ? '{' : '[';
+            if (profondita == 0) {
+                fprintf(stderr, "[riga %d, col %d] '%c' senza parentesi aperta\n", riga, colonna, c);
+                free(da_file);
+                return 1;
+            }
+            if (aperte[profondita - 1] != atteso) {
+                fprintf(stderr, "[riga %d, col %d] '%c' non corrisponde a '%c' aperta a riga %d, col %d\n",
+                        riga, colonna, c, aperte[profondita - 1],
+                        righe_aperte[profondita - 1], colonne_aperte[profondita - 1]);
+                free(da_file);
+                return 1;
+            }
+            profondita--;
+        }
+
         // gli spazi non producono token: si salta la stampa ma la posizione avanza
         if (token != TOKEN_SPAZIO) {
             conteggio[token]++;
@@ -315,6 +351,14 @@ int main(int argc, char *argv[]) {
         } else {
             colonna++;
         }
+    }
+
+    if (profondita > 0) {
+        fprintf(stderr, "[riga %d, col %d] '%c' aperta a riga %d, col %d e mai chiusa\n",
+                riga, colonna, aperte[profondita - 1],
+                righe_aperte[profondita - 1], colonne_aperte[profondita - 1]);
+        free(da_file);
+        return 1;
     }
 
     TokenType fine = analizzaChar('\0');
