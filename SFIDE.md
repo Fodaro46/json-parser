@@ -12,7 +12,7 @@ Spuntare quando fatte.
 - [x] **Letterali.** Riconoscere `true`, `false`, `null`. `tru` e `nulll` devono essere errori.
 - [x] **Posizione.** Ogni token deve portarsi dietro riga e colonna. Servirà per i messaggi di errore.
 - [x] **Bilanciamento.** Dato un testo, dire se `{}` e `[]` sono bilanciati e annidati correttamente, ignorando quelli dentro le stringhe. `[{]}` non è valido.
-- [ ] **Escape.** Gestire `\n`, `\t`, `\\`, `\"` e `\uXXXX` dentro le stringhe.
+- [x] **Escape.** Gestire `\n`, `\t`, `\\`, `\"` e `\uXXXX` dentro le stringhe.
 - [x] **Lettura da file.** Caricare tutto il contenuto di un file in un buffer allocato con `malloc`, con la dimensione ricavata dal file. Gestire file inesistente e file vuoto.
 - [ ] **Messaggi di errore.** Quando il lexer trova un carattere inatteso, stampare riga, colonna e il carattere trovato, poi uscire con codice diverso da 0.
 

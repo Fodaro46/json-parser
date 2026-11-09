@@ -119,6 +119,44 @@ int letteraleValido(const char *testo, int lunghezza){
     return 0;
 }
 
+// Controlla le sequenze di escape dentro una stringa (virgolette comprese):
+// ammessi \" \\ \/ \b \f \n \r \t e \uXXXX con quattro cifre esadecimali.
+// Restituisce -1 se e' tutto valido, altrimenti la posizione (da 0, a partire
+// dalla virgoletta di apertura) del backslash che apre l'escape sbagliato.
+int primoEscapeNonValido(const char *testo, int lunghezza){
+    for (int i = 1; i < lunghezza - 1; i++) {
+        if (testo[i] != '\\') {
+            continue;
+        }
+        int inizio = i;
+        i++;
+        switch (testo[i]) {
+            case '"':
+            case '\\':
+            case '/':
+            case 'b':
+            case 'f':
+            case 'n':
+            case 'r':
+            case 't':
+                break;
+            case 'u':
+                for (int k = 1; k <= 4; k++) {
+                    char h = (i + k < lunghezza - 1) ? testo[i + k] : '\0';
+                    int esadecimale = (h >= '0' && h <= '9') || (h >= 'a' && h <= 'f') || (h >= 'A' && h <= 'F');
+                    if (!esadecimale) {
+                        return inizio;
+                    }
+                }
+                i += 4;
+                break;
+            default:
+                return inizio;
+        }
+    }
+    return -1;
+}
+
 // Vero per i caratteri che possono comparire dentro un numero JSON.
 int carattereNumero(char c){
     return (c >= '0' && c <= '9') || c == '-' || c == '+' || c == '.' || c == 'e' || c == 'E';
@@ -261,6 +299,12 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
             lunghezza++;
+            int sbagliato = primoEscapeNonValido(test_json + i, lunghezza);
+            if (sbagliato >= 0) {
+                fprintf(stderr, "[riga %d, col %d] Escape non valido nella stringa\n", riga, colonna + sbagliato);
+                free(da_file);
+                return 1;
+            }
             conteggio[token]++;
             stampaStringa(test_json + i, lunghezza, riga, colonna);
             for (int k = 0; k < lunghezza; k++) {
