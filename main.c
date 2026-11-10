@@ -326,6 +326,12 @@ int main(int argc, char *argv[]) {
                 lunghezza++;
             }
             if (!letteraleValido(test_json + i, lunghezza)) {
+                // un letterale inizia solo con t, f o n: altrimenti il primo carattere e' inatteso
+                if (c != 't' && c != 'f' && c != 'n') {
+                    fprintf(stderr, "[riga %d, col %d] Carattere inatteso: '%c' (ASCII: %d)\n", riga, colonna, c, c);
+                    free(da_file);
+                    return 1;
+                }
                 fprintf(stderr, "[riga %d, col %d] Letterale non valido: '%.*s'\n", riga, colonna, lunghezza, test_json + i);
                 free(da_file);
                 return 1;
