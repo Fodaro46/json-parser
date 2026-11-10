@@ -44,7 +44,7 @@ make
 ./parser
 ```
 
-Oppure direttamente `make run`.
+Oppure direttamente `make run`. Con `make test` si eseguono tutti i json di `tests/` controllando il codice di uscita.
 
 Senza argomenti usa una stringa di prova. Per leggere un file:
 
