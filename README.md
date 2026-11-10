@@ -63,11 +63,10 @@ Senza argomenti usa una stringa di prova. Per leggere un file:
 
 Il lexer legge il testo e stampa i token con riga e colonna.
 Riconosce graffe, quadre, due punti, virgola, stringhe intere (con `\"` dentro) e numeri (interi, decimali ed esponenti) e `true`/`false`/`null` come singolo token. Gli spazi bianchi vengono saltati.
-Gli errori (file vuoto, stringa non terminata, numero o letterale non valido, parentesi non bilanciate) escono con codice 1 e un messaggio.
+Gli errori (file vuoto, stringa non terminata, numero o letterale non valido, escape sbagliato, parentesi non bilanciate) escono con codice 1 e un messaggio.
 Manca il parser vero e proprio.
 
 ## Prossimi passi
 
-- gestire gli escape nelle stringhe (`\n`, `\uXXXX`)
 
 Il dettaglio è in `SFIDE.md`.

@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
  //IL LEXER DEVE LEGGERE UN CARATTERE E CLASSIFICARLO
 typedef enum{
   TOKEN_STRING,
@@ -284,14 +285,31 @@ int main(int argc, char *argv[]) {
         TokenType token = analizzaChar(c);
 
         // dalla virgoletta di apertura a quella di chiusura e' un solo token;
-        // la virgoletta preceduta da backslash non chiude la stringa
+        // dopo un backslash sono ammessi solo gli escape del JSON
         if (token == TOKEN_STRING) {
             int lunghezza = 1;
             while (test_json[i + lunghezza] != '\0' && test_json[i + lunghezza] != '"') {
-                if (test_json[i + lunghezza] == '\\' && test_json[i + lunghezza + 1] != '\0') {
+                if (test_json[i + lunghezza] == '\\') {
+                    char escape = test_json[i + lunghezza + 1];
+                    if (escape == 'u') {
+                        for (int k = 2; k <= 5; k++) {
+                            if (!isxdigit((unsigned char)test_json[i + lunghezza + k])) {
+                                fprintf(stderr, "[riga %d, col %d] Escape \\u non valido: servono 4 cifre esadecimali\n", riga, colonna + lunghezza);
+                                free(da_file);
+                                return 1;
+                            }
+                        }
+                        lunghezza += 6;
+                    } else if (escape != '\0' && strchr("\"\\/bfnrt", escape) != NULL) {
+                        lunghezza += 2;
+                    } else {
+                        fprintf(stderr, "[riga %d, col %d] Escape non valido: '\\%c'\n", riga, colonna + lunghezza, escape == '\0' ? '?' : escape);
+                        free(da_file);
+                        return 1;
+                    }
+                } else {
                     lunghezza++;
                 }
-                lunghezza++;
             }
             if (test_json[i + lunghezza] == '\0') {
                 fprintf(stderr, "[riga %d, col %d] Stringa non terminata\n", riga, colonna);
