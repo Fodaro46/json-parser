@@ -92,19 +92,18 @@ void stampaToken(char c, TokenType token, int riga, int colonna){
     }
 }
 
-// Stampa a video un numero intero (piu caratteri) come singolo token
-void stampaNumero(const char *testo, int lunghezza, int riga, int colonna){
-    printf("[riga %d, col %d] Numero: '%.*s' --> %s\n", riga, colonna, lunghezza, testo, nomeToken(TOKEN_NUMERO));
-}
+// Un token che si porta dietro tipo, testo (non copiato: punta nel buffer) e posizione
+typedef struct{
+    TokenType tipo;
+    const char *testo;
+    int lunghezza;
+    int riga;
+    int colonna;
+}Token;
 
-// Stampa a video una stringa intera (virgolette comprese) come singolo token
-void stampaStringa(const char *testo, int lunghezza, int riga, int colonna){
-    printf("[riga %d, col %d] Stringa: %.*s --> %s\n", riga, colonna, lunghezza, testo, nomeToken(TOKEN_STRING));
-}
-
-// Stampa a video un letterale (true, false, null) come singolo token
-void stampaLetterale(const char *testo, int lunghezza, int riga, int colonna){
-    printf("[riga %d, col %d] Letterale: %.*s --> %s\n", riga, colonna, lunghezza, testo, nomeToken(TOKEN_LETTERALE));
+// Stampa a video un token fatto di piu caratteri (stringa, numero, letterale)
+void stampaTokenTesto(Token t){
+    printf("[riga %d, col %d] %s: %.*s\n", t.riga, t.colonna, nomeToken(t.tipo), t.lunghezza, t.testo);
 }
 
 // Vero solo se il testo e' esattamente "true", "false" o "null".
@@ -306,7 +305,7 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
             conteggio[token]++;
-            stampaStringa(test_json + i, lunghezza, riga, colonna);
+            stampaTokenTesto((Token){TOKEN_STRING, test_json + i, lunghezza, riga, colonna});
             for (int k = 0; k < lunghezza; k++) {
                 if (test_json[i + k] == '\n') {
                     riga++;
@@ -337,7 +336,7 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
             conteggio[TOKEN_LETTERALE]++;
-            stampaLetterale(test_json + i, lunghezza, riga, colonna);
+            stampaTokenTesto((Token){TOKEN_LETTERALE, test_json + i, lunghezza, riga, colonna});
             colonna += lunghezza;
             i += lunghezza - 1;
             continue;
@@ -355,7 +354,7 @@ int main(int argc, char *argv[]) {
                 return 1;
             }
             conteggio[token]++;
-            stampaNumero(test_json + i, lunghezza, riga, colonna);
+            stampaTokenTesto((Token){TOKEN_NUMERO, test_json + i, lunghezza, riga, colonna});
             colonna += lunghezza;
             i += lunghezza - 1;
             continue;

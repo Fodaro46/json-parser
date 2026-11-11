@@ -68,6 +68,8 @@ Manca il parser vero e proprio.
 
 ## Prossimi passi
 
+- mettere i token in un array invece di stamparli (struct `Token` già pronta)
+
 - gestire gli escape nelle stringhe (`\n`, `\uXXXX`)
 
 Il dettaglio è in `SFIDE.md`.
