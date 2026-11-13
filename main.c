@@ -83,15 +83,6 @@ const char *nomeToken(TokenType t){
 
 #define PROFONDITA_MAX 1024
 
-// Stampa a video il carattere e il token associato
-void stampaToken(char c, TokenType token, int riga, int colonna){
-    if (c == '\0') {
-        printf("[riga %d, col %d] Carattere: '\\0' (ASCII: %3d) --> %s\n", riga, colonna, c, nomeToken(token));
-    } else {
-        printf("[riga %d, col %d] Carattere: '%c' (ASCII: %3d) --> %s\n", riga, colonna, c, c, nomeToken(token));
-    }
-}
-
 // Un token che si porta dietro tipo, testo (non copiato: punta nel buffer) e posizione
 typedef struct{
     TokenType tipo;
@@ -101,9 +92,25 @@ typedef struct{
     int colonna;
 }Token;
 
-// Stampa a video un token fatto di piu caratteri (stringa, numero, letterale)
+// Stampa a video un token con tipo, testo e posizione
 void stampaTokenTesto(Token t){
     printf("[riga %d, col %d] %s: %.*s\n", t.riga, t.colonna, nomeToken(t.tipo), t.lunghezza, t.testo);
+}
+
+// Aggiunge un token in fondo al vettore, raddoppiando la capienza quando serve.
+// Se la memoria finisce il programma si ferma.
+void aggiungiToken(Token **vettore, int *quanti, int *capienza, Token t){
+    if (*quanti == *capienza) {
+        int nuova = (*capienza == 0) ? 64 : *capienza * 2;
+        Token *nuovo = realloc(*vettore, nuova * sizeof(Token));
+        if (nuovo == NULL) {
+            fprintf(stderr, "Memoria esaurita\n");
+            exit(1);
+        }
+        *vettore = nuovo;
+        *capienza = nuova;
+    }
+    (*vettore)[(*quanti)++] = t;
 }
 
 // Vero solo se il testo e' esattamente "true", "false" o "null".
@@ -250,6 +257,9 @@ char *leggiFile(const char *percorso){
 int main(int argc, char *argv[]) {
     const char *test_json = TEST_JSON;
     char *da_file = NULL;
+    Token *token_letti = NULL;
+    int quanti = 0;
+    int capienza = 0;
 
     if (argc > 1) {
         da_file = leggiFile(argv[1]);
@@ -259,6 +269,7 @@ int main(int argc, char *argv[]) {
         }
         if (da_file[0] == '\0') {
             fprintf(stderr, "Il file '%s' e' vuoto\n", argv[1]);
+            free(token_letti);
             free(da_file);
             return 1;
         }
@@ -268,7 +279,6 @@ int main(int argc, char *argv[]) {
         printf("Avvio test hardcoded sulla stringa:\n%s\n\n", test_json);
     }
 
-    int conteggio[TOKEN_TOTALE] = {0};
     int riga = 1;
     int colonna = 1;
 
@@ -294,6 +304,7 @@ int main(int argc, char *argv[]) {
             }
             if (test_json[i + lunghezza] == '\0') {
                 fprintf(stderr, "[riga %d, col %d] Stringa non terminata\n", riga, colonna);
+                free(token_letti);
                 free(da_file);
                 return 1;
             }
@@ -301,11 +312,11 @@ int main(int argc, char *argv[]) {
             int sbagliato = primoEscapeNonValido(test_json + i, lunghezza);
             if (sbagliato >= 0) {
                 fprintf(stderr, "[riga %d, col %d] Escape non valido nella stringa\n", riga, colonna + sbagliato);
+                free(token_letti);
                 free(da_file);
                 return 1;
             }
-            conteggio[token]++;
-            stampaTokenTesto((Token){TOKEN_STRING, test_json + i, lunghezza, riga, colonna});
+            aggiungiToken(&token_letti, &quanti, &capienza, (Token){TOKEN_STRING, test_json + i, lunghezza, riga, colonna});
             for (int k = 0; k < lunghezza; k++) {
                 if (test_json[i + k] == '\n') {
                     riga++;
@@ -328,15 +339,16 @@ int main(int argc, char *argv[]) {
                 // un letterale inizia solo con t, f o n: altrimenti il primo carattere e' inatteso
                 if (c != 't' && c != 'f' && c != 'n') {
                     fprintf(stderr, "[riga %d, col %d] Carattere inatteso: '%c' (ASCII: %d)\n", riga, colonna, c, c);
+                    free(token_letti);
                     free(da_file);
                     return 1;
                 }
                 fprintf(stderr, "[riga %d, col %d] Letterale non valido: '%.*s'\n", riga, colonna, lunghezza, test_json + i);
+                free(token_letti);
                 free(da_file);
                 return 1;
             }
-            conteggio[TOKEN_LETTERALE]++;
-            stampaTokenTesto((Token){TOKEN_LETTERALE, test_json + i, lunghezza, riga, colonna});
+            aggiungiToken(&token_letti, &quanti, &capienza, (Token){TOKEN_LETTERALE, test_json + i, lunghezza, riga, colonna});
             colonna += lunghezza;
             i += lunghezza - 1;
             continue;
@@ -350,11 +362,11 @@ int main(int argc, char *argv[]) {
             }
             if (!numeroValido(test_json + i, lunghezza)) {
                 fprintf(stderr, "[riga %d, col %d] Numero non valido: '%.*s'\n", riga, colonna, lunghezza, test_json + i);
+                free(token_letti);
                 free(da_file);
                 return 1;
             }
-            conteggio[token]++;
-            stampaTokenTesto((Token){TOKEN_NUMERO, test_json + i, lunghezza, riga, colonna});
+            aggiungiToken(&token_letti, &quanti, &capienza, (Token){TOKEN_NUMERO, test_json + i, lunghezza, riga, colonna});
             colonna += lunghezza;
             i += lunghezza - 1;
             continue;
@@ -364,6 +376,7 @@ int main(int argc, char *argv[]) {
         if (token == TOKEN_GRAFFA_APERTA || token == TOKEN_QUADRA_APERTA) {
             if (profondita == PROFONDITA_MAX) {
                 fprintf(stderr, "[riga %d, col %d] Troppo annidato (massimo %d livelli)\n", riga, colonna, PROFONDITA_MAX);
+                free(token_letti);
                 free(da_file);
                 return 1;
             }
@@ -375,6 +388,7 @@ int main(int argc, char *argv[]) {
             char atteso = (token == TOKEN_GRAFFA_CHIUSA) ? '{' : '[';
             if (profondita == 0) {
                 fprintf(stderr, "[riga %d, col %d] '%c' senza parentesi aperta\n", riga, colonna, c);
+                free(token_letti);
                 free(da_file);
                 return 1;
             }
@@ -382,6 +396,7 @@ int main(int argc, char *argv[]) {
                 fprintf(stderr, "[riga %d, col %d] '%c' non corrisponde a '%c' aperta a riga %d, col %d\n",
                         riga, colonna, c, aperte[profondita - 1],
                         righe_aperte[profondita - 1], colonne_aperte[profondita - 1]);
+                free(token_letti);
                 free(da_file);
                 return 1;
             }
@@ -390,8 +405,7 @@ int main(int argc, char *argv[]) {
 
         // gli spazi non producono token: si salta la stampa ma la posizione avanza
         if (token != TOKEN_SPAZIO) {
-            conteggio[token]++;
-            stampaToken(c, token, riga, colonna);
+            aggiungiToken(&token_letti, &quanti, &capienza, (Token){token, test_json + i, 1, riga, colonna});
         }
 
         if (c == '\n') {
@@ -406,13 +420,21 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "[riga %d, col %d] '%c' aperta a riga %d, col %d e mai chiusa\n",
                 riga, colonna, aperte[profondita - 1],
                 righe_aperte[profondita - 1], colonne_aperte[profondita - 1]);
+        free(token_letti);
         free(da_file);
         return 1;
     }
 
-    TokenType fine = analizzaChar('\0');
-    conteggio[fine]++;
-    stampaToken('\0', fine, riga, colonna);
+    aggiungiToken(&token_letti, &quanti, &capienza, (Token){TOKEN_FINE, "", 0, riga, colonna});
+
+    for (int k = 0; k < quanti; k++) {
+        stampaTokenTesto(token_letti[k]);
+    }
+
+    int conteggio[TOKEN_TOTALE] = {0};
+    for (int k = 0; k < quanti; k++) {
+        conteggio[token_letti[k].tipo]++;
+    }
 
     printf("\nToken trovati:\n");
     for (int t = 0; t < TOKEN_TOTALE; t++) {
@@ -421,6 +443,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    free(token_letti);
     free(da_file);
     return 0;
 }
