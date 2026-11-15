@@ -254,6 +254,73 @@ char *leggiFile(const char *percorso){
     return buffer;
 }
 
+// Albero dei valori: ogni valore JSON e' di uno di questi tipi
+typedef enum{
+    VALORE_NULL,
+    VALORE_BOOL,
+    VALORE_NUMERO,
+    VALORE_STRINGA,
+    VALORE_ARRAY,
+    VALORE_OGGETTO
+}TipoValore;
+
+typedef struct Valore Valore;
+struct Valore{
+    TipoValore tipo;
+    union{
+        int booleano;
+        double numero;
+        char *stringa; // allocata con malloc, senza virgolette
+        struct{
+            Valore **elementi;
+            int quanti;
+        } array;
+        struct{
+            char **chiavi; // chiavi[k] corrisponde a valori[k]
+            Valore **valori;
+            int quanti;
+        } oggetto;
+    } dati;
+};
+
+// Crea un valore del tipo dato, con i dati a zero. Restituisce NULL se la memoria finisce.
+Valore *creaValore(TipoValore tipo){
+    Valore *v = calloc(1, sizeof(Valore));
+    if (v != NULL) {
+        v->tipo = tipo;
+    }
+    return v;
+}
+
+// Libera un valore e, ricorsivamente, tutto quello che contiene.
+void liberaValore(Valore *v){
+    if (v == NULL) {
+        return;
+    }
+    switch (v->tipo) {
+        case VALORE_STRINGA:
+            free(v->dati.stringa);
+            break;
+        case VALORE_ARRAY:
+            for (int k = 0; k < v->dati.array.quanti; k++) {
+                liberaValore(v->dati.array.elementi[k]);
+            }
+            free(v->dati.array.elementi);
+            break;
+        case VALORE_OGGETTO:
+            for (int k = 0; k < v->dati.oggetto.quanti; k++) {
+                free(v->dati.oggetto.chiavi[k]);
+                liberaValore(v->dati.oggetto.valori[k]);
+            }
+            free(v->dati.oggetto.chiavi);
+            free(v->dati.oggetto.valori);
+            break;
+        default:
+            break;
+    }
+    free(v);
+}
+
 int main(int argc, char *argv[]) {
     const char *test_json = TEST_JSON;
     char *da_file = NULL;
