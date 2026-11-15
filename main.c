@@ -321,6 +321,103 @@ void liberaValore(Valore *v){
     free(v);
 }
 
+// Converte il testo di un token stringa (virgolette comprese, escape gia' validati)
+// in una stringa allocata con malloc, senza virgolette e con gli escape risolti.
+// \uXXXX diventa UTF-8; le coppie surrogate non vengono unite.
+// Restituisce NULL se la memoria finisce. Il chiamante deve fare free().
+char *decodificaStringa(const char *testo, int lunghezza){
+    // il risultato non e' mai piu lungo del testo: \uXXXX (6 caratteri) vale al massimo 3 byte
+    char *uscita = malloc(lunghezza);
+    if (uscita == NULL) {
+        return NULL;
+    }
+    int n = 0;
+    for (int i = 1; i < lunghezza - 1; i++) {
+        char c = testo[i];
+        if (c != '\\') {
+            uscita[n++] = c;
+            continue;
+        }
+        i++;
+        switch (testo[i]) {
+            case 'b': uscita[n++] = '\b'; break;
+            case 'f': uscita[n++] = '\f'; break;
+            case 'n': uscita[n++] = '\n'; break;
+            case 'r': uscita[n++] = '\r'; break;
+            case 't': uscita[n++] = '\t'; break;
+            case 'u': {
+                unsigned int codice = 0;
+                for (int k = 1; k <= 4; k++) {
+                    char h = testo[i + k];
+                    codice = codice * 16 + (h <= '9' ? h - '0' : (h | 32) - 'a' + 10);
+                }
+                i += 4;
+                if (codice < 0x80) {
+                    uscita[n++] = (char)codice;
+                } else if (codice < 0x800) {
+                    uscita[n++] = (char)(0xC0 | (codice >> 6));
+                    uscita[n++] = (char)(0x80 | (codice & 0x3F));
+                } else {
+                    uscita[n++] = (char)(0xE0 | (codice >> 12));
+                    uscita[n++] = (char)(0x80 | ((codice >> 6) & 0x3F));
+                    uscita[n++] = (char)(0x80 | (codice & 0x3F));
+                }
+                break;
+            }
+            default: // \" \\ \/
+                uscita[n++] = testo[i];
+                break;
+        }
+    }
+    uscita[n] = '\0';
+    return uscita;
+}
+
+// Costruisce il valore di un token semplice: letterale, numero o stringa.
+// Restituisce NULL per gli altri token (strutture, FINE) o se la memoria finisce.
+Valore *valoreDaToken(Token t){
+    Valore *v = NULL;
+    switch (t.tipo) {
+        case TOKEN_LETTERALE:
+            if (t.testo[0] == 'n') {
+                v = creaValore(VALORE_NULL);
+            } else {
+                v = creaValore(VALORE_BOOL);
+                if (v != NULL) {
+                    v->dati.booleano = (t.testo[0] == 't');
+                }
+            }
+            break;
+        case TOKEN_NUMERO: {
+            char *copia = malloc(t.lunghezza + 1);
+            if (copia == NULL) {
+                return NULL;
+            }
+            memcpy(copia, t.testo, t.lunghezza);
+            copia[t.lunghezza] = '\0';
+            v = creaValore(VALORE_NUMERO);
+            if (v != NULL) {
+                v->dati.numero = strtod(copia, NULL);
+            }
+            free(copia);
+            break;
+        }
+        case TOKEN_STRING:
+            v = creaValore(VALORE_STRINGA);
+            if (v != NULL) {
+                v->dati.stringa = decodificaStringa(t.testo, t.lunghezza);
+                if (v->dati.stringa == NULL) {
+                    free(v);
+                    return NULL;
+                }
+            }
+            break;
+        default:
+            break;
+    }
+    return v;
+}
+
 int main(int argc, char *argv[]) {
     const char *test_json = TEST_JSON;
     char *da_file = NULL;
