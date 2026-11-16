@@ -418,6 +418,181 @@ Valore *valoreDaToken(Token t){
     return v;
 }
 
+// Segnala sul stderr un token diverso da quello atteso
+void erroreToken(const char *atteso, Token t){
+    fprintf(stderr, "[riga %d, col %d] Atteso %s, trovato %s '%.*s'\n",
+            t.riga, t.colonna, atteso, nomeToken(t.tipo), t.lunghezza, t.testo);
+}
+
+// Aggiunge un elemento in fondo a un array. Restituisce 0 se la memoria finisce
+// (in quel caso l'elemento resta del chiamante).
+int aggiungiElemento(Valore *array, Valore *elemento){
+    int n = array->dati.array.quanti;
+    Valore **nuovi = realloc(array->dati.array.elementi, (n + 1) * sizeof(Valore *));
+    if (nuovi == NULL) {
+        return 0;
+    }
+    nuovi[n] = elemento;
+    array->dati.array.elementi = nuovi;
+    array->dati.array.quanti = n + 1;
+    return 1;
+}
+
+// Aggiunge una coppia chiave/valore a un oggetto. Restituisce 0 se la memoria finisce
+// (in quel caso chiave e valore restano del chiamante).
+int aggiungiMembro(Valore *oggetto, char *chiave, Valore *valore){
+    int n = oggetto->dati.oggetto.quanti;
+    char **chiavi = realloc(oggetto->dati.oggetto.chiavi, (n + 1) * sizeof(char *));
+    if (chiavi == NULL) {
+        return 0;
+    }
+    oggetto->dati.oggetto.chiavi = chiavi;
+    Valore **valori = realloc(oggetto->dati.oggetto.valori, (n + 1) * sizeof(Valore *));
+    if (valori == NULL) {
+        return 0;
+    }
+    chiavi[n] = chiave;
+    valori[n] = valore;
+    oggetto->dati.oggetto.valori = valori;
+    oggetto->dati.oggetto.quanti = n + 1;
+    return 1;
+}
+
+Valore *parsaValore(const Token *token, int *pos);
+
+// Parser di un array: *pos punta alla '[' e a fine lettura punta dopo la ']'.
+Valore *parsaArray(const Token *token, int *pos){
+    Valore *array = creaValore(VALORE_ARRAY);
+    if (array == NULL) {
+        fprintf(stderr, "Memoria esaurita\n");
+        return NULL;
+    }
+    (*pos)++;
+    if (token[*pos].tipo == TOKEN_QUADRA_CHIUSA) {
+        (*pos)++;
+        return array;
+    }
+    while (1) {
+        Valore *elemento = parsaValore(token, pos);
+        if (elemento == NULL) {
+            liberaValore(array);
+            return NULL;
+        }
+        if (!aggiungiElemento(array, elemento)) {
+            fprintf(stderr, "Memoria esaurita\n");
+            liberaValore(elemento);
+            liberaValore(array);
+            return NULL;
+        }
+        if (token[*pos].tipo == TOKEN_VIRGOLA) {
+            (*pos)++;
+        } else if (token[*pos].tipo == TOKEN_QUADRA_CHIUSA) {
+            (*pos)++;
+            return array;
+        } else {
+            erroreToken("',' o ']'", token[*pos]);
+            liberaValore(array);
+            return NULL;
+        }
+    }
+}
+
+// Parser di un oggetto: *pos punta alla '{' e a fine lettura punta dopo la '}'.
+Valore *parsaOggetto(const Token *token, int *pos){
+    Valore *oggetto = creaValore(VALORE_OGGETTO);
+    if (oggetto == NULL) {
+        fprintf(stderr, "Memoria esaurita\n");
+        return NULL;
+    }
+    (*pos)++;
+    if (token[*pos].tipo == TOKEN_GRAFFA_CHIUSA) {
+        (*pos)++;
+        return oggetto;
+    }
+    while (1) {
+        if (token[*pos].tipo != TOKEN_STRING) {
+            erroreToken("una chiave (stringa)", token[*pos]);
+            liberaValore(oggetto);
+            return NULL;
+        }
+        char *chiave = decodificaStringa(token[*pos].testo, token[*pos].lunghezza);
+        if (chiave == NULL) {
+            fprintf(stderr, "Memoria esaurita\n");
+            liberaValore(oggetto);
+            return NULL;
+        }
+        (*pos)++;
+        if (token[*pos].tipo != TOKEN_DOUBLE_DOT) {
+            erroreToken("':'", token[*pos]);
+            free(chiave);
+            liberaValore(oggetto);
+            return NULL;
+        }
+        (*pos)++;
+        Valore *valore = parsaValore(token, pos);
+        if (valore == NULL) {
+            free(chiave);
+            liberaValore(oggetto);
+            return NULL;
+        }
+        if (!aggiungiMembro(oggetto, chiave, valore)) {
+            fprintf(stderr, "Memoria esaurita\n");
+            free(chiave);
+            liberaValore(valore);
+            liberaValore(oggetto);
+            return NULL;
+        }
+        if (token[*pos].tipo == TOKEN_VIRGOLA) {
+            (*pos)++;
+        } else if (token[*pos].tipo == TOKEN_GRAFFA_CHIUSA) {
+            (*pos)++;
+            return oggetto;
+        } else {
+            erroreToken("',' o '}'", token[*pos]);
+            liberaValore(oggetto);
+            return NULL;
+        }
+    }
+}
+
+// Parser ricorsivo: legge un valore dal vettore di token (che finisce con TOKEN_FINE),
+// partendo da *pos, e lascia *pos sul primo token dopo il valore.
+// Restituisce NULL dopo aver scritto l'errore su stderr.
+// La profondita' e' gia' limitata dal controllo sulle parentesi del lexer.
+Valore *parsaValore(const Token *token, int *pos){
+    Token t = token[*pos];
+    if (t.tipo == TOKEN_QUADRA_APERTA) {
+        return parsaArray(token, pos);
+    }
+    if (t.tipo == TOKEN_GRAFFA_APERTA) {
+        return parsaOggetto(token, pos);
+    }
+    Valore *v = valoreDaToken(t);
+    if (v == NULL) {
+        if (t.tipo == TOKEN_STRING || t.tipo == TOKEN_NUMERO || t.tipo == TOKEN_LETTERALE) {
+            fprintf(stderr, "Memoria esaurita\n");
+        } else {
+            erroreToken("un valore", t);
+        }
+        return NULL;
+    }
+    (*pos)++;
+    return v;
+}
+
+// Nome del tipo di un valore, per la stampa
+const char *nomeValore(TipoValore tipo){
+    switch (tipo) {
+        case VALORE_NULL:    return "NULL";
+        case VALORE_BOOL:    return "BOOL";
+        case VALORE_NUMERO:  return "NUMERO";
+        case VALORE_STRINGA: return "STRINGA";
+        case VALORE_ARRAY:   return "ARRAY";
+        case VALORE_OGGETTO: return "OGGETTO";
+        default:             return "SCONOSCIUTO";
+    }
+}
+
 int main(int argc, char *argv[]) {
     const char *test_json = TEST_JSON;
     char *da_file = NULL;
@@ -606,6 +781,23 @@ int main(int argc, char *argv[]) {
             printf("  %-14s %d\n", nomeToken((TokenType)t), conteggio[t]);
         }
     }
+
+    int posizione = 0;
+    Valore *radice = parsaValore(token_letti, &posizione);
+    if (radice == NULL) {
+        free(token_letti);
+        free(da_file);
+        return 1;
+    }
+    if (token_letti[posizione].tipo != TOKEN_FINE) {
+        erroreToken("la fine del testo", token_letti[posizione]);
+        liberaValore(radice);
+        free(token_letti);
+        free(da_file);
+        return 1;
+    }
+    printf("\nAlbero costruito: radice di tipo %s\n", nomeValore(radice->tipo));
+    liberaValore(radice);
 
     free(token_letti);
     free(da_file);

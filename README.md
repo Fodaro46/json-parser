@@ -64,10 +64,11 @@ Senza argomenti usa una stringa di prova. Per leggere un file:
 Il lexer legge il testo, mette i token in un array (tipo, testo, riga e colonna) e poi li stampa.
 Riconosce graffe, quadre, due punti, virgola, stringhe intere (con `\"` dentro) e numeri (interi, decimali ed esponenti) e `true`/`false`/`null` come singolo token. Gli spazi bianchi vengono saltati.
 Gli errori (file vuoto, stringa non terminata, numero o letterale non valido, parentesi non bilanciate) escono con codice 1 e un messaggio.
-Manca il parser vero e proprio.
+Dai token il parser ricorsivo costruisce l'albero dei valori (oggetto, array, stringa, numero, bool, null) e lo libera a fine esecuzione. Gli errori di sintassi (virgola di troppo, manca `:`, chiave non stringa, valori dopo la fine) escono con 1.
 
 ## Prossimi passi
 
-- parser ricorsivo che costruisce l'albero dei valori
+- funzioni per cercare per chiave e per indice nell'albero
+- stampa dell'albero in JSON, compatta e indentata
 
 Il dettaglio è in `SFIDE.md`.

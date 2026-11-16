@@ -16,7 +16,7 @@ test: build
 	@fail=0; \
 	for f in tests/*.json; do \
 		case $$f in \
-			tests/numero_*|tests/letterale_*|tests/carattere_*|tests/vuoto.json|tests/stringa_non_chiusa.json|tests/escape_sconosciuto.json|tests/escape_unicode_*|tests/bilanciamento_incrociato.json|tests/bilanciamento_non_chiusa.json|tests/bilanciamento_chiusa_in_piu.json) atteso=1;; \
+			tests/numero_*|tests/letterale_*|tests/carattere_*|tests/parser_*|tests/vuoto.json|tests/stringa_non_chiusa.json|tests/escape_sconosciuto.json|tests/escape_unicode_*|tests/bilanciamento_incrociato.json|tests/bilanciamento_non_chiusa.json|tests/bilanciamento_chiusa_in_piu.json) atteso=1;; \
 			*) atteso=0;; \
 		esac; \
 		./parser $$f >/dev/null 2>&1; codice=$$?; \
