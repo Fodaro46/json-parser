@@ -580,6 +580,33 @@ Valore *parsaValore(const Token *token, int *pos){
     return v;
 }
 
+// Cerca una chiave in un oggetto. Restituisce il valore (che resta dell'albero,
+// non va liberato) oppure NULL se la chiave non c'e' o se v non e' un oggetto.
+// Con chiavi ripetute vale la prima.
+Valore *cercaChiave(const Valore *v, const char *chiave){
+    if (v == NULL || v->tipo != VALORE_OGGETTO) {
+        return NULL;
+    }
+    for (int k = 0; k < v->dati.oggetto.quanti; k++) {
+        if (strcmp(v->dati.oggetto.chiavi[k], chiave) == 0) {
+            return v->dati.oggetto.valori[k];
+        }
+    }
+    return NULL;
+}
+
+// Cerca un elemento di un array per indice (da 0). Restituisce NULL se l'indice
+// e' fuori dall'array o se v non e' un array.
+Valore *cercaIndice(const Valore *v, int indice){
+    if (v == NULL || v->tipo != VALORE_ARRAY) {
+        return NULL;
+    }
+    if (indice < 0 || indice >= v->dati.array.quanti) {
+        return NULL;
+    }
+    return v->dati.array.elementi[indice];
+}
+
 // Nome del tipo di un valore, per la stampa
 const char *nomeValore(TipoValore tipo){
     switch (tipo) {
