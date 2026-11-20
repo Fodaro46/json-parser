@@ -24,3 +24,8 @@ test: build
 	done; \
 	if [ $$fail -eq 0 ]; then echo "Tutti i test passati"; fi; \
 	exit $$fail
+	@./parser tests/annidato.json 'a.b[2].c' | grep -q 'Trovato: STRINGA d' || { echo "FALLITO: percorso a.b[2].c"; exit 1; }
+	@./parser tests/annidato.json 'a.b[1]' | grep -q 'Trovato: NUMERO 2' || { echo "FALLITO: percorso a.b[1]"; exit 1; }
+	@if ./parser tests/annidato.json 'a.x' >/dev/null 2>&1; then echo "FALLITO: a.x doveva non trovare"; exit 1; fi
+	@if ./parser tests/annidato.json 'a.b[9]' >/dev/null 2>&1; then echo "FALLITO: a.b[9] doveva non trovare"; exit 1; fi
+	@if ./parser tests/annidato.json 'a..b' >/dev/null 2>&1; then echo "FALLITO: a..b doveva essere errato"; exit 1; fi

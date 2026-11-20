@@ -65,10 +65,10 @@ Il lexer legge il testo, mette i token in un array (tipo, testo, riga e colonna)
 Riconosce graffe, quadre, due punti, virgola, stringhe intere (con `\"` dentro) e numeri (interi, decimali ed esponenti) e `true`/`false`/`null` come singolo token. Gli spazi bianchi vengono saltati.
 Gli errori (file vuoto, stringa non terminata, numero o letterale non valido, parentesi non bilanciate) escono con codice 1 e un messaggio.
 Dai token il parser ricorsivo costruisce l'albero dei valori (oggetto, array, stringa, numero, bool, null) e lo libera a fine esecuzione. Gli errori di sintassi (virgola di troppo, manca `:`, chiave non stringa, valori dopo la fine) escono con 1.
+Con un secondo argomento si cerca un percorso nell'albero: `./parser tests/annidato.json 'a.b[2].c'` stampa il valore trovato, oppure `Percorso ... non trovato` ed esce con 1.
 
 ## Prossimi passi
 
-- funzioni per cercare per chiave e per indice nell'albero
 - stampa dell'albero in JSON, compatta e indentata
 
 Il dettaglio è in `SFIDE.md`.

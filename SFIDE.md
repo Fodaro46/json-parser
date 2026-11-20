@@ -20,7 +20,7 @@ Spuntare quando fatte.
 
 - [x] **Settimana 1: lexer completo.** Una funzione che prende il testo e produce un array di token (tipo, testo, posizione). Deve passare su tutti i file di una cartella `tests/` con casi validi e non validi, scritti da te.
 - [x] **Settimana 2: parser ricorsivo.** Dai token costruire un albero di valori (oggetto, array, stringa, numero, bool, null). Definire la struttura dati e la `free` ricorsiva. Verificare l'assenza di leak con `valgrind` o gli address sanitizer.
-- [ ] **Settimana 3: accesso ai dati.** Funzioni per cercare per chiave in un oggetto e per indice in un array, con percorsi tipo `a.b[2].c`. Cosa restituire se il percorso non esiste?
+- [x] **Settimana 3: accesso ai dati.** Funzioni per cercare per chiave in un oggetto e per indice in un array, con percorsi tipo `a.b[2].c`. Cosa restituire se il percorso non esiste?
 - [ ] **Settimana 4: stampa.** Serializzare l'albero di nuovo in JSON, sia compatto sia indentato. Il risultato, riletto dal parser, deve produrre un albero uguale.
 - [ ] **Settimana 5: robustezza.** Limite di profondità per evitare lo stack overflow su `[[[[[...` molto annidati. Gestire file grandi senza caricarli due volte. Provare input casuali e cercare i crash.
 - [ ] **Settimana 6: confronto.** Prendere un file di qualche MB, misurare il tempo del tuo parser e confrontarlo con un parser esistente. Trovare dove perdi tempo.

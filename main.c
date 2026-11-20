@@ -607,6 +607,65 @@ Valore *cercaIndice(const Valore *v, int indice){
     return v->dati.array.elementi[indice];
 }
 
+// Segue un percorso tipo "a.b[2].c" dalla radice: le chiavi sono separate da '.',
+// gli indici sono tra quadre e possono stare all'inizio o dopo un altro segmento
+// ("[0].x", "a[1][2]"). Un percorso vuoto restituisce la radice.
+// Restituisce NULL se un passaggio non esiste o se il percorso e' scritto male.
+Valore *cercaPercorso(Valore *radice, const char *percorso){
+    Valore *corrente = radice;
+    const char *p = percorso;
+    int primo = 1;
+    while (*p != '\0') {
+        if (*p == '[') {
+            p++;
+            if (*p < '0' || *p > '9') {
+                return NULL;
+            }
+            int indice = 0;
+            while (*p >= '0' && *p <= '9') {
+                indice = indice * 10 + (*p - '0');
+                if (indice > 100000000) {
+                    return NULL;
+                }
+                p++;
+            }
+            if (*p != ']') {
+                return NULL;
+            }
+            p++;
+            corrente = cercaIndice(corrente, indice);
+        } else {
+            if (!primo) {
+                if (*p != '.') {
+                    return NULL;
+                }
+                p++;
+            }
+            const char *inizio = p;
+            while (*p != '\0' && *p != '.' && *p != '[') {
+                p++;
+            }
+            int lunghezza = (int)(p - inizio);
+            if (lunghezza == 0) {
+                return NULL;
+            }
+            char *chiave = malloc(lunghezza + 1);
+            if (chiave == NULL) {
+                return NULL;
+            }
+            memcpy(chiave, inizio, lunghezza);
+            chiave[lunghezza] = '\0';
+            corrente = cercaChiave(corrente, chiave);
+            free(chiave);
+        }
+        if (corrente == NULL) {
+            return NULL;
+        }
+        primo = 0;
+    }
+    return corrente;
+}
+
 // Nome del tipo di un valore, per la stampa
 const char *nomeValore(TipoValore tipo){
     switch (tipo) {
@@ -617,6 +676,30 @@ const char *nomeValore(TipoValore tipo){
         case VALORE_ARRAY:   return "ARRAY";
         case VALORE_OGGETTO: return "OGGETTO";
         default:             return "SCONOSCIUTO";
+    }
+}
+
+// Stampa il tipo di un valore e, per i valori semplici, il contenuto
+void stampaValoreBreve(const Valore *v){
+    switch (v->tipo) {
+        case VALORE_BOOL:
+            printf("%s %s\n", nomeValore(v->tipo), v->dati.booleano ? "true" : "false");
+            break;
+        case VALORE_NUMERO:
+            printf("%s %g\n", nomeValore(v->tipo), v->dati.numero);
+            break;
+        case VALORE_STRINGA:
+            printf("%s %s\n", nomeValore(v->tipo), v->dati.stringa);
+            break;
+        case VALORE_ARRAY:
+            printf("%s di %d elementi\n", nomeValore(v->tipo), v->dati.array.quanti);
+            break;
+        case VALORE_OGGETTO:
+            printf("%s di %d membri\n", nomeValore(v->tipo), v->dati.oggetto.quanti);
+            break;
+        default:
+            printf("%s\n", nomeValore(v->tipo));
+            break;
     }
 }
 
@@ -824,9 +907,22 @@ int main(int argc, char *argv[]) {
         return 1;
     }
     printf("\nAlbero costruito: radice di tipo %s\n", nomeValore(radice->tipo));
+
+    // con un secondo argomento si cerca il percorso nell'albero (es. a.b[2].c)
+    int esito = 0;
+    if (argc > 2) {
+        Valore *trovato = cercaPercorso(radice, argv[2]);
+        if (trovato == NULL) {
+            fprintf(stderr, "Percorso '%s' non trovato\n", argv[2]);
+            esito = 1;
+        } else {
+            printf("Trovato: ");
+            stampaValoreBreve(trovato);
+        }
+    }
     liberaValore(radice);
 
     free(token_letti);
     free(da_file);
-    return 0;
+    return esito;
 }
