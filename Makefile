@@ -29,3 +29,6 @@ test: build
 	@if ./parser tests/annidato.json 'a.x' >/dev/null 2>&1; then echo "FALLITO: a.x doveva non trovare"; exit 1; fi
 	@if ./parser tests/annidato.json 'a.b[9]' >/dev/null 2>&1; then echo "FALLITO: a.b[9] doveva non trovare"; exit 1; fi
 	@if ./parser tests/annidato.json 'a..b' >/dev/null 2>&1; then echo "FALLITO: a..b doveva essere errato"; exit 1; fi
+	@./parser tests/annidato.json --compatto | grep -qxF '{"a":{"b":[1,2,{"c":"d"}]}}' || { echo "FALLITO: --compatto su annidato.json"; exit 1; }
+	@./parser tests/spazi.json --compatto | grep -qxF '{"a":1}' || { echo "FALLITO: --compatto su spazi.json"; exit 1; }
+	@./parser tests/escape_validi.json --compatto | grep -qxF '["a\nb\tc\\d\"e/f\bg\fh\ri","èèA"]' || { echo "FALLITO: --compatto su escape_validi.json"; exit 1; }

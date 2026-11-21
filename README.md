@@ -66,9 +66,10 @@ Riconosce graffe, quadre, due punti, virgola, stringhe intere (con `\"` dentro) 
 Gli errori (file vuoto, stringa non terminata, numero o letterale non valido, parentesi non bilanciate) escono con codice 1 e un messaggio.
 Dai token il parser ricorsivo costruisce l'albero dei valori (oggetto, array, stringa, numero, bool, null) e lo libera a fine esecuzione. Gli errori di sintassi (virgola di troppo, manca `:`, chiave non stringa, valori dopo la fine) escono con 1.
 Con un secondo argomento si cerca un percorso nell'albero: `./parser tests/annidato.json 'a.b[2].c'` stampa il valore trovato, oppure `Percorso ... non trovato` ed esce con 1.
+Con `--compatto` al posto del percorso l'albero viene riscritto in JSON compatto.
 
 ## Prossimi passi
 
-- stampa dell'albero in JSON, compatta e indentata
+- stampa indentata dell'albero e prova "stampa, rileggi, confronta"
 
 Il dettaglio è in `SFIDE.md`.

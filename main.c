@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
  //IL LEXER DEVE LEGGERE UN CARATTERE E CLASSIFICARLO
 typedef enum{
   TOKEN_STRING,
@@ -679,6 +680,87 @@ const char *nomeValore(TipoValore tipo){
     }
 }
 
+// Scrive una stringa tra virgolette, rimettendo gli escape dove servono
+// (virgolette, backslash e caratteri di controllo). I byte UTF-8 passano cosi' come sono.
+void scriviStringa(FILE *f, const char *testo){
+    fputc('"', f);
+    for (const char *p = testo; *p != '\0'; p++) {
+        unsigned char c = (unsigned char)*p;
+        switch (c) {
+            case '"':  fputs("\\\"", f); break;
+            case '\\': fputs("\\\\", f); break;
+            case '\b': fputs("\\b", f); break;
+            case '\f': fputs("\\f", f); break;
+            case '\n': fputs("\\n", f); break;
+            case '\r': fputs("\\r", f); break;
+            case '\t': fputs("\\t", f); break;
+            default:
+                if (c < 0x20) {
+                    fprintf(f, "\\u%04x", c);
+                } else {
+                    fputc(c, f);
+                }
+                break;
+        }
+    }
+    fputc('"', f);
+}
+
+// Scrive un numero con le cifre minime che lo riportano allo stesso valore.
+// I valori non finiti (es. 1e999) non esistono in JSON e escono come null.
+void scriviNumero(FILE *f, double numero){
+    if (!isfinite(numero)) {
+        fputs("null", f);
+        return;
+    }
+    char buffer[40];
+    snprintf(buffer, sizeof buffer, "%.15g", numero);
+    if (strtod(buffer, NULL) != numero) {
+        snprintf(buffer, sizeof buffer, "%.17g", numero);
+    }
+    fputs(buffer, f);
+}
+
+// Serializza un albero in JSON compatto, senza spazi.
+void scriviCompatto(FILE *f, const Valore *v){
+    switch (v->tipo) {
+        case VALORE_NULL:
+            fputs("null", f);
+            break;
+        case VALORE_BOOL:
+            fputs(v->dati.booleano ? "true" : "false", f);
+            break;
+        case VALORE_NUMERO:
+            scriviNumero(f, v->dati.numero);
+            break;
+        case VALORE_STRINGA:
+            scriviStringa(f, v->dati.stringa);
+            break;
+        case VALORE_ARRAY:
+            fputc('[', f);
+            for (int k = 0; k < v->dati.array.quanti; k++) {
+                if (k > 0) {
+                    fputc(',', f);
+                }
+                scriviCompatto(f, v->dati.array.elementi[k]);
+            }
+            fputc(']', f);
+            break;
+        case VALORE_OGGETTO:
+            fputc('{', f);
+            for (int k = 0; k < v->dati.oggetto.quanti; k++) {
+                if (k > 0) {
+                    fputc(',', f);
+                }
+                scriviStringa(f, v->dati.oggetto.chiavi[k]);
+                fputc(':', f);
+                scriviCompatto(f, v->dati.oggetto.valori[k]);
+            }
+            fputc('}', f);
+            break;
+    }
+}
+
 // Stampa il tipo di un valore e, per i valori semplici, il contenuto
 void stampaValoreBreve(const Valore *v){
     switch (v->tipo) {
@@ -908,9 +990,13 @@ int main(int argc, char *argv[]) {
     }
     printf("\nAlbero costruito: radice di tipo %s\n", nomeValore(radice->tipo));
 
-    // con un secondo argomento si cerca il percorso nell'albero (es. a.b[2].c)
+    // con --compatto si stampa l'albero in JSON; altrimenti il secondo argomento
+    // e' un percorso da cercare nell'albero (es. a.b[2].c)
     int esito = 0;
-    if (argc > 2) {
+    if (argc > 2 && strcmp(argv[2], "--compatto") == 0) {
+        scriviCompatto(stdout, radice);
+        printf("\n");
+    } else if (argc > 2) {
         Valore *trovato = cercaPercorso(radice, argv[2]);
         if (trovato == NULL) {
             fprintf(stderr, "Percorso '%s' non trovato\n", argv[2]);
